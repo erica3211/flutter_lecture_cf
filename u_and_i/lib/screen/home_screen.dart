@@ -2,8 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +27,17 @@ class HomeScreen extends StatelessWidget {
           // MediaQuery.of(context).size.width /2 이런식으로 사용 가능
           width: MediaQuery.of(context).size.width,
           height: double.infinity,
+          // 웬만하면 한눈에 보이기 편하게 하기 위해 밑에 onHeartPressedButton룰 만듦.
           child: Column(
             children: [
               // 글자
-              _Top(),
+              _Top(
+                selectedDate: selectedDate,
+                // VoidCallback : 반환값이 없는 하나의 함수.
+                // onHeartPressedButton() 은 실행 후 반환이 된 결과인 void가 들어감.
+                // onHeartPressedButton 자체를 넣어서 실행은 IconButton안 onPressed에서 할 수 있도록 해야 함.
+                onPressed: onHeartPressedButton,
+              ),
               // 이미지
               _Botton()
             ],
@@ -32,16 +46,44 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  onHeartPressedButton() {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Align(
+          alignment: Alignment.center,
+          child: Container(
+            color: Colors.white,
+            height: 300,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              initialDateTime: selectedDate,
+              maximumDate: DateTime.now(),
+              onDateTimeChanged: (DateTime date) {
+                setState(() {
+                  selectedDate = date;
+                });
+              },
+              dateOrder: DatePickerDateOrder.ymd,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _Top extends StatelessWidget {
-  const _Top({super.key});
+  final DateTime selectedDate;
+  final VoidCallback? onPressed;
+  const _Top({required this.selectedDate, required this.onPressed, super.key});
 
   @override
   Widget build(BuildContext context) {
-    int day = 1;
-    DateTime date = DateTime.now();
     final textTheme = Theme.of(context).textTheme;
+    final now = DateTime.now();
     return Expanded(
       child: Container(
         // color: Colors.red,
@@ -56,40 +98,19 @@ class _Top extends StatelessWidget {
               style: textTheme.bodyLarge,
             ),
             Text(
-              '2023.05.06',
+              '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}',
               style: textTheme.bodyMedium,
             ),
             IconButton(
               iconSize: 60,
               color: Colors.red,
-              onPressed: () {
-                showCupertinoDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (BuildContext context) {
-                    return Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        color: Colors.white,
-                        height: 300,
-                        child: CupertinoDatePicker(
-                          mode: CupertinoDatePickerMode.date,
-                          onDateTimeChanged: (DateTime date) {
-                            print(date.);
-                          },
-                          dateOrder: DatePickerDateOrder.ymd,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+              onPressed: onPressed,
               icon: Icon(
                 Icons.favorite,
               ),
             ),
             Text(
-              'D+$day',
+              'D+${now.difference(selectedDate).inDays + 1}',
               style: textTheme.displayMedium,
             )
           ],
