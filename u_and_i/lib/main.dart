@@ -3,10 +3,17 @@ import 'package:u_and_i/screen/home_screen.dart';
 
 void main() {
   runApp(MaterialApp(
+    // 테마
     theme: ThemeData(
-      fontFamily: 'sunflower',
+      // 기본 폰트
+        fontFamily: 'sunflower',
+        // 버튼 테마
         buttonTheme: ButtonThemeData(),
+
+        // 글씨 테마
         textTheme: TextTheme(
+
+          // display인지 body인지는 팀원들과 상의해서 결정
           displayLarge: TextStyle(
             color: Colors.white,
             fontSize: 80.0,
