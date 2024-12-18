@@ -18,6 +18,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (BuildContext context) {
                     return RouteOneScreen(
+                      // 이후 페이지에 number: 20이라는 값 전달.
                       number: 20,
                     );
                   },
@@ -27,12 +28,16 @@ class HomeScreen extends StatelessWidget {
             },
             child: Text('Push'),
           ),
+
+          // 홈스크린에서는 더이상 이전 페이지가 없기 때문에 검은 화면만 뜸.
           OutlinedButton(
             onPressed: () {
               Navigator.of(context).pop(456);
             },
             child: Text('Pop'),
           ),
+
+          // 더이상 이전 페이지가 없어서 클릭해도 페이지 이동을 하지 않음.
           OutlinedButton(
             onPressed: () {
               // pop을 좀 더 안전하게 할 수 있는 방법
@@ -40,6 +45,8 @@ class HomeScreen extends StatelessWidget {
             },
             child: Text('Maybe Pop'),
           ),
+
+          // 뒤로 갈 수 있는 페이지가 있는지 확인하는 방법.
           OutlinedButton(
             onPressed: () {
               // canPop은 반환값을 돌려준다.
