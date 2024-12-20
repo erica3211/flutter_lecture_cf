@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: video != null
           ? _VideoPlayer(
               video: video!,
+              onAnotherVideoPicked: onLogoTap,
             )
           : _VideoSelector(onLogoTap: onLogoTap),
     );
@@ -29,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final video = await ImagePicker().pickVideo(
       source: ImageSource.gallery,
     );
-    print(video);
+
     setState(() {
       this.video = video;
     });
@@ -114,7 +115,13 @@ class _Title extends StatelessWidget {
 
 class _VideoPlayer extends StatefulWidget {
   final XFile video;
-  const _VideoPlayer({required this.video, super.key});
+  final VoidCallback onAnotherVideoPicked;
+
+  const _VideoPlayer({
+    required this.video,
+    required this.onAnotherVideoPicked,
+    super.key,
+  });
 
   @override
   State<_VideoPlayer> createState() => _VideoPlayerState();
@@ -122,11 +129,22 @@ class _VideoPlayer extends StatefulWidget {
 
 class _VideoPlayerState extends State<_VideoPlayer> {
   late VideoPlayerController videoPlayerController;
+  bool showIcons = true;
 
   @override
   void initState() {
     super.initState();
     initializeControllor();
+  }
+
+  @override
+  didUpdateWidget(covariant _VideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 다른 동영상일 경우,initializeControllor 다시 실행
+    if (oldWidget.video.path != widget.video.path) {
+      initializeControllor();
+    }
   }
 
   initializeControllor() async {
@@ -144,30 +162,50 @@ class _VideoPlayerState extends State<_VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: AspectRatio(
-        aspectRatio: videoPlayerController.value.aspectRatio,
-        child: Stack(
-          children: [
-            VideoPlayer(videoPlayerController),
-            _PlayButton(
-              onReversePressed: onReversePressed,
-              onPlayPressed: onPlayPressed,
-              onForwardPressed: onForwardPressed,
-              isPlaying: videoPlayerController.value.isPlaying,
-            ),
-            _Bottom(
-                position: videoPlayerController.value.position,
-                maxPosition: videoPlayerController.value.duration),
-            _PickAnotherVideo(onPressed: () {}),
-          ],
+    return GestureDetector(
+      onTap: (){
+        setState(() {
+          showIcons = !showIcons;
+        });
+      },
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: videoPlayerController.value.aspectRatio,
+          child: Stack(
+            children: [
+              VideoPlayer(videoPlayerController),
+              if(showIcons)
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withOpacity(0.5),
+              ),
+              if(showIcons)
+              _PlayButton(
+                onReversePressed: onReversePressed,
+                onPlayPressed: onPlayPressed,
+                onForwardPressed: onForwardPressed,
+                isPlaying: videoPlayerController.value.isPlaying,
+              ),
+              if(showIcons)
+              _Bottom(
+                  position: videoPlayerController.value.position,
+                  maxPosition: videoPlayerController.value.duration,
+                  onSliderChanged: onSliderChanged),
+              if(showIcons)
+              _PickAnotherVideo(onPressed: widget.onAnotherVideoPicked),
+
+            ],
+          ),
         ),
       ),
     );
   }
-
+  onSliderChanged(double val){
+    final position = Duration(seconds: val.toInt());
+    videoPlayerController.seekTo(position);
+  }
   onReversePressed() {
-    () {
       final currentPosition = videoPlayerController.value.position;
 
       Duration position = Duration();
@@ -175,23 +213,20 @@ class _VideoPlayerState extends State<_VideoPlayer> {
         position = currentPosition - Duration(seconds: 3);
       }
       videoPlayerController.seekTo(position);
-    };
   }
 
   onPlayPressed() {
-    () {
       setState(() {
         if (videoPlayerController.value.isPlaying) {
           videoPlayerController.pause();
         } else {
           videoPlayerController.play();
+
         }
       });
-    };
   }
 
   onForwardPressed() {
-    () {
       final maxPosition = videoPlayerController.value.duration;
       final currentPosition = videoPlayerController.value.position;
 
@@ -201,7 +236,6 @@ class _VideoPlayerState extends State<_VideoPlayer> {
         position = currentPosition + Duration(seconds: 3);
       }
       videoPlayerController.seekTo(position);
-    };
   }
 }
 
@@ -248,9 +282,11 @@ class _PlayButton extends StatelessWidget {
 class _Bottom extends StatelessWidget {
   final Duration position;
   final Duration maxPosition;
+  final ValueChanged<double> onSliderChanged;
   const _Bottom({
     required this.position,
     required this.maxPosition,
+    required this.onSliderChanged,
     super.key,
   });
 
@@ -274,7 +310,7 @@ class _Bottom extends StatelessWidget {
               child: Slider(
                 value: position.inSeconds.toDouble(),
                 max: maxPosition.inSeconds.toDouble(),
-                onChanged: (double val) {},
+                onChanged: onSliderChanged,
               ),
             ),
             Text(
@@ -292,6 +328,7 @@ class _Bottom extends StatelessWidget {
 
 class _PickAnotherVideo extends StatelessWidget {
   final VoidCallback onPressed;
+
   const _PickAnotherVideo({
     required this.onPressed,
     super.key,
@@ -303,6 +340,7 @@ class _PickAnotherVideo extends StatelessWidget {
       right: 0,
       child: IconButton(
         onPressed: onPressed,
+        color: Colors.white,
         icon: Icon(Icons.photo_camera_back),
       ),
     );
