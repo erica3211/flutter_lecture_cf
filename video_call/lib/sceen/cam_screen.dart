@@ -35,16 +35,34 @@ class _CamScreenState extends State<CamScreen> {
       );
 
       engine!.registerEventHandler(
-        RtcEngineEventHandler(onUserJoined:
-            (RtcConnection connection, int remoteUid, int elapsed) {
-          print('-------User Joined-------');
-          setState(() {
-            this.remoteUid = remoteUid;
-          });
-        }),
+        RtcEngineEventHandler(
+            onJoinChannelSuccess: (
+              RtcConnection connection,
+              int elaped,
+            ) {},
+            onLeaveChannel: (
+              RtcConnection connection,
+              RtcStats stats,
+            ) {},
+            onUserJoined:
+                (RtcConnection connection, int remoteUid, int elapsed) {
+              print('-------User Joined-------');
+              setState(() {
+                this.remoteUid = remoteUid;
+              });
+            },
+            onUserOffline: (
+              RtcConnection connection,
+              int remoteUid,
+              UserOfflineReasonType reason,
+            ) {
+              setState(() {
+                this.remoteUid = null;
+              });
+            }),
       );
 
-      await engine!.enableAudio();
+      await engine!.enableVideo();
       await engine!.startPreview();
 
       ChannelMediaOptions options = ChannelMediaOptions();
@@ -52,7 +70,6 @@ class _CamScreenState extends State<CamScreen> {
       await engine!.joinChannel(
         token: token,
         channelId: channelName,
-        // uid가 0이면 자동으로 생성해줌
         uid: uid,
         options: options,
       );
@@ -100,7 +117,11 @@ class _CamScreenState extends State<CamScreen> {
                   left: 16.0,
                   right: 16.0,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      engine!.leaveChannel();
+                      engine!.release()∞;
+                      Navigator.of(context).pop();
+                    },
                     child: Text('나가기'),
                   ),
                 ),
