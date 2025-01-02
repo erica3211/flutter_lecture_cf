@@ -10,7 +10,7 @@ const categoryColors = [
   /// 노랑
   'FFEB38',
   /// 초록
-  'FCAF50',
+  '81D742',
   /// 파랑
   '2196F3',
   /// 남색
