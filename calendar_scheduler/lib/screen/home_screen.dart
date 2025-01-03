@@ -23,26 +23,26 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime.now().day,
   );
 
-  Map<DateTime, List<Schedule>> schedules = {
+  Map<DateTime, List<ScheduleTable>> schedules = {
     DateTime.utc(2024, 12, 28): [
-      Schedule(
-        id: 1,
-        startTime: 11,
-        endTime: 12,
-        content: '플러터 공부하기',
-        date: DateTime.utc(2024, 12, 28),
-        color: categoryColors[0],
-        createdAt: DateTime.now().toUtc(),
-      ),
-      Schedule(
-        id: 2,
-        startTime: 14,
-        endTime: 16,
-        content: 'NestJS 공부하기',
-        date: DateTime.utc(2024, 12, 28),
-        color: categoryColors[3],
-        createdAt: DateTime.now().toUtc(),
-      ),
+      // ScheduleTable(
+      //   id: 1,
+      //   startTime: 11,
+      //   endTime: 12,
+      //   content: '플러터 공부하기',
+      //   date: DateTime.utc(2024, 12, 28),
+      //   color: categoryColors[0],
+      //   createdAt: DateTime.now().toUtc(),
+      // ),
+      // ScheduleTable(
+      //   id: 2,
+      //   startTime: 14,
+      //   endTime: 16,
+      //   content: 'NestJS 공부하기',
+      //   date: DateTime.utc(2024, 12, 28),
+      //   color: categoryColors[3],
+      //   createdAt: DateTime.now().toUtc(),
+      // ),
     ]
   };
 
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final schedule = await showModalBottomSheet<Schedule>(
+          final schedule = await showModalBottomSheet<ScheduleTable>(
             context: context,
             builder: (_) {
               return ScheduleBottomSheet(
@@ -63,16 +63,16 @@ class _HomeScreenState extends State<HomeScreen> {
             return;
           }
           // 방법 1
-          setState(() {
-            schedules = {
-              ...schedules,
-              schedule.date: [
-                if (schedules.containsKey(schedule.date))
-                  ...schedules[schedule.date]!,
-                schedule,
-              ]
-            };
-          });
+          // setState(() {
+          //   schedules = {
+          //     ...schedules,
+          //     schedule.date: [
+          //       if (schedules.containsKey(schedule.date))
+          //         ...schedules[schedule.date]!,
+          //       schedule,
+          //     ]
+          //   };
+          // });
 
           // 방법 2
           // final dataExists = schedules.containsKey(schedule.date);
@@ -125,9 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     final selectedSchedules = schedules[selectedDay]!;
                     final scheduleModel = selectedSchedules[index];
                     return ScheduleCard(
-                      startTime: scheduleModel.startTime,
-                      endTime: scheduleModel.endTime,
-                      content: scheduleModel.content,
+                      startTime: 12,
+                      endTime: 14,
+                      content:'아무거나 넣기',
                       color: Color(
                         int.parse(
                           'FF${scheduleModel.color}',
